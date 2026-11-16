@@ -1,0 +1,18 @@
+# Each folder's owner is asked to review changes to it.
+# TODO: replace VIVIANA_GH and ANISH_GH with their GitHub usernames, then uncomment those lines.
+
+*                       @yashpy
+
+/packages/protocol/     @yashpy
+/packages/relay/        @yashpy
+/packages/controller/   @yashpy
+/packages/host-sdk/     @yashpy
+/packages/mcp-server/   @yashpy
+/.github/               @yashpy
+
+# /packages/protocol/   @yashpy @VIVIANA_GH @ANISH_GH
+# /packages/ui/         @VIVIANA_GH
+# /apps/seance-party/   @VIVIANA_GH
+# /packages/gestures/   @ANISH_GH
+# /recordings/          @ANISH_GH
+# /apps/steady/         @ANISH_GH
