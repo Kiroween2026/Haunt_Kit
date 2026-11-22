@@ -41,17 +41,21 @@ export type { HoldStillConfig } from "./detectors/hold-still";
 
 export {
   DEFAULT_FLICK_CONFIG,
+  FLICK_DIRECTION,
   createFlickDetector,
   flickDetector,
   DEFAULT_SPIN_CONFIG,
+  SPIN_DIRECTION,
   createSpinDetector,
   spinDetector,
   DEFAULT_FLIP_CONFIG,
+  FLIP_STATE,
   createFlipDetector,
   flipDetector,
   DEFAULT_SCREAM_CONFIG,
   createScreamDetector,
   screamDetector,
+  DEFAULT_TAP_CONFIG,
   createTapDetector,
   makeTapEvent,
   tapDetector,
@@ -64,15 +68,22 @@ export {
 } from "./detectors";
 export type {
   FlickConfig,
+  FlickDirection,
   SpinConfig,
+  SpinDirection,
   FlipConfig,
+  FlipState,
   ScreamConfig,
   TapConfig,
+  TapSample,
   RepConfig,
   RepStatus,
+  RepState,
+  RepBaseline,
+  RepDetectorInstance,
   DoubleShakeConfig,
 } from "./detectors";
 
 // Catalog
-export { GestureCatalog, catalog } from "./catalog";
+export { GestureCatalog, catalog, createDefaultCatalog, gestureCatalog } from "./catalog";
 export type { AnyDetector } from "./catalog";

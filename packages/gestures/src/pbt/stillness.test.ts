@@ -84,4 +84,34 @@ describe("PBT Invariant 1: Stillness Invariant", () => {
       { numRuns: 40, seed: 30303 },
     );
   });
+
+  it("never triggers flick on flat phone with noise up to 0.2 m/s² at 30, 68 and 120 Hz", () => {
+    for (const hz of [30, 68, 120] as const) {
+      const dt = 1000 / hz;
+      const count = Math.floor(2000 / dt);
+      const flick = createFlickDetector();
+      const events: GestureEvent[] = [];
+
+      for (let i = 0; i < count; i++) {
+        const t = i * dt;
+        const noise = Math.sin(i * 1.7) * 0.195;
+        events.push(
+          ...flick.push({
+            t,
+            ax: Math.cos(i * 2.3) * 0.05,
+            ay: Math.sin(i * 3.1) * 0.05,
+            az: 9.81 + noise,
+            gx: 0,
+            gy: 0,
+            gz: 0,
+            alpha: 0,
+            beta: 0,
+            gamma: 0,
+          }),
+        );
+      }
+
+      expect(events, `failed at ${hz} Hz`).toHaveLength(0);
+    }
+  });
 });

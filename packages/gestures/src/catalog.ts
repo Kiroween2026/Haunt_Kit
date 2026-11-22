@@ -13,18 +13,27 @@ import {
   tiltDetector,
 } from "./detectors";
 
-export type AnyDetector = Detector<unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyDetector = Detector<any>;
 
+/**
+ * Registry mapping detector names to Detector instances (Design §2.1).
+ * Supports both method lookups (catalog.get("shake")), creation (catalog.create("shake")),
+ * and direct property indexing (catalog["shake"]).
+ */
 export class GestureCatalog {
+  [key: string]: unknown;
+
   private readonly detectors = new Map<string, AnyDetector>();
 
-  register(detector: AnyDetector): this {
-    this.detectors.set(detector.name, detector);
+  register<T = unknown>(detector: Detector<T>): this {
+    this.detectors.set(detector.name, detector as AnyDetector);
+    (this as Record<string, unknown>)[detector.name] = detector;
     return this;
   }
 
-  get(name: string): AnyDetector | undefined {
-    return this.detectors.get(name);
+  get<T = unknown>(name: string): Detector<T> | undefined {
+    return this.detectors.get(name) as Detector<T> | undefined;
   }
 
   has(name: string): boolean {
@@ -32,7 +41,11 @@ export class GestureCatalog {
   }
 
   list(): string[] {
-    return [...this.detectors.keys()];
+    return Array.from(this.detectors.keys());
+  }
+
+  getAll(): AnyDetector[] {
+    return Array.from(this.detectors.values());
   }
 
   /** A new detector instance with its default config merged with `config`. */
@@ -43,15 +56,26 @@ export class GestureCatalog {
   }
 }
 
+/**
+ * Factory creating a fresh GestureCatalog pre-populated with default detectors.
+ */
+export function createDefaultCatalog(): GestureCatalog & Record<string, AnyDetector | undefined> {
+  const cat = new GestureCatalog()
+    .register(tiltDetector)
+    .register(shakeDetector)
+    .register(holdStillDetector)
+    .register(flickDetector)
+    .register(spinDetector)
+    .register(flipDetector)
+    .register(screamDetector)
+    .register(tapDetector)
+    .register(repDetector)
+    .register(doubleShakeDetector);
+  return cat as GestureCatalog & Record<string, AnyDetector | undefined>;
+}
+
 /** All built-in detectors. */
-export const catalog = new GestureCatalog()
-  .register(tiltDetector)
-  .register(shakeDetector)
-  .register(holdStillDetector)
-  .register(flickDetector)
-  .register(spinDetector)
-  .register(flipDetector)
-  .register(screamDetector)
-  .register(tapDetector)
-  .register(repDetector)
-  .register(doubleShakeDetector);
+export const catalog: GestureCatalog & Record<string, AnyDetector | undefined> = createDefaultCatalog();
+
+/** Alias for default catalog instance. */
+export const gestureCatalog = catalog;

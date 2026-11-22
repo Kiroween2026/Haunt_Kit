@@ -1,6 +1,20 @@
 // Built by Yadnesh for Anish's gestures package (Anish is out this week). Owner: Anish.
 import type { Detector, GestureEvent, Sample } from "@haunt-kit/protocol";
 
+/**
+ * Direction constants for the Flick Gesture Detector.
+ * 0: Left, 1: Right, 2: Up, 3: Down, 4: Forward/Back
+ */
+export const FLICK_DIRECTION = {
+  LEFT: 0,
+  RIGHT: 1,
+  UP: 2,
+  DOWN: 3,
+  FORWARD: 4,
+} as const;
+
+export type FlickDirection = (typeof FLICK_DIRECTION)[keyof typeof FLICK_DIRECTION];
+
 /** Configuration options for the Flick Detector. */
 export interface FlickConfig {
   /** Minimum rate of change of the acceleration vector, in m/s³. Default: 35 */
@@ -36,7 +50,10 @@ export function createFlickDetector(customConfig?: Partial<FlickConfig>) {
   const jerkThreshold = config.jerkThreshold > 0 ? config.jerkThreshold : DEFAULT_FLICK_CONFIG.jerkThreshold;
   const windowMs = config.windowMs > 0 ? config.windowMs : DEFAULT_FLICK_CONFIG.windowMs;
   const cooldownMs = Math.max(0, config.cooldownMs);
-  const minDelta = config.minDeltaMs2 > 0 ? config.minDeltaMs2 : DEFAULT_FLICK_CONFIG.minDeltaMs2;
+  const minDelta =
+    typeof config.minDeltaMs2 === "number" && config.minDeltaMs2 >= 0
+      ? config.minDeltaMs2
+      : DEFAULT_FLICK_CONFIG.minDeltaMs2;
 
   let buffer: { t: number; ax: number; ay: number; az: number }[] = [];
   let lastEventTime: number | null = null;

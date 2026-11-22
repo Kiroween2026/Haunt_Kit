@@ -384,10 +384,14 @@ export function repStreamGen(options?: {
         peakAngleDeg,
       });
 
-      // Prepend initial resting baseline sample
-      const baseSamples: Sample[] = [
-        {
-          t: 0,
+      // Prepend initial resting baseline samples for 2.1s to allow calibration
+      const dtMs = 1000 / rateHz;
+      const calDurationMs = 2100;
+      const baseSamples: Sample[] = [];
+      const calCount = Math.floor(calDurationMs / dtMs);
+      for (let i = 0; i <= calCount; i++) {
+        baseSamples.push({
+          t: Math.round(i * dtMs),
           ax: 0,
           ay: 0,
           az: 9.81,
@@ -397,10 +401,10 @@ export function repStreamGen(options?: {
           alpha: 0,
           beta: 0,
           gamma: 0,
-        },
-      ];
+        });
+      }
 
-      const stream = sampleTrajectory(traj, rateHz, 50);
+      const stream = sampleTrajectory(traj, rateHz, calDurationMs + Math.round(dtMs));
       return {
         samples: [...baseSamples, ...stream],
         expectedReps: repCount,
@@ -430,9 +434,13 @@ export function microMotionStreamGen(
         peakAngleDeg: peakDeg,
       });
 
-      const baseSamples: Sample[] = [
-        {
-          t: 0,
+      const dtMs = 1000 / rateHz;
+      const calDurationMs = 2100;
+      const baseSamples: Sample[] = [];
+      const calCount = Math.floor(calDurationMs / dtMs);
+      for (let i = 0; i <= calCount; i++) {
+        baseSamples.push({
+          t: Math.round(i * dtMs),
           ax: 0,
           ay: 0,
           az: 9.81,
@@ -442,10 +450,10 @@ export function microMotionStreamGen(
           alpha: 0,
           beta: 0,
           gamma: 0,
-        },
-      ];
+        });
+      }
 
-      const samples = sampleTrajectory(traj, rateHz, 50);
+      const samples = sampleTrajectory(traj, rateHz, calDurationMs + Math.round(dtMs));
       return {
         samples: [...baseSamples, ...samples],
         expectedCount: 0, // Micro-movements must NEVER increment count

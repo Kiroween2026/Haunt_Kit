@@ -1,6 +1,16 @@
 // Built by Yadnesh for Anish's gestures package (Anish is out this week). Owner: Anish.
 import type { Detector, GestureEvent, Sample } from "@haunt-kit/protocol";
 
+export type RepState = "REST" | "ASCENDING" | "PEAK" | "DESCENDING" | "COMPLETED";
+
+export interface RepBaseline {
+  ax?: number;
+  ay?: number;
+  az?: number;
+  beta?: number;
+  gamma?: number;
+}
+
 /** Configuration options for the Rep Detector (Steady). */
 export interface RepConfig {
   /** A rep must reach at least this range of motion to count, in degrees. Default: 45 */
@@ -15,6 +25,10 @@ export interface RepConfig {
   calibrationMs: number;
   /** Smoothing time constant for the angle, in ms. Default: 100 */
   smoothingMs: number;
+  /** Optional smoothing factor alias (0..1) for Kiro spec tests */
+  smoothingFactor?: number;
+  /** Optional pre-calibrated baseline orientation */
+  baseline?: RepBaseline;
 }
 
 export const DEFAULT_REP_CONFIG: RepConfig = {
@@ -62,7 +76,7 @@ function angleBetween(a: Vec, b: Vec): number {
  *    `count`, `romDeg`, `tempoSec`, `fullRange` (ROM ≥ targetRomDeg), `tooFast` (tempo < minTempoSec).
  *    Smaller movements never count.
  */
-export function createRepDetector(customConfig?: Partial<RepConfig>) {
+export function createRepDetector(customConfig?: Partial<RepConfig>): RepDetectorInstance {
   const config = { ...DEFAULT_REP_CONFIG, ...customConfig };
   const hysteresis = config.hysteresisDeg > 0 ? config.hysteresisDeg : DEFAULT_REP_CONFIG.hysteresisDeg;
   const minRom = Math.max(hysteresis, config.minRomDeg);
@@ -84,6 +98,17 @@ export function createRepDetector(customConfig?: Partial<RepConfig>) {
   let peak = 0;
   let count = 0;
   let lastT = 0;
+  let state: RepState = "REST";
+
+  if (
+    config.baseline &&
+    (config.baseline.ax !== undefined || config.baseline.ay !== undefined || config.baseline.az !== undefined)
+  ) {
+    const bUnit = unit(config.baseline.ax ?? 0, config.baseline.ay ?? 0, config.baseline.az ?? 9.81);
+    if (bUnit) {
+      rest = bUnit;
+    }
+  }
 
   const restartCalibration = () => {
     calStart = null;
@@ -98,13 +123,14 @@ export function createRepDetector(customConfig?: Partial<RepConfig>) {
     moving = false;
     peak = 0;
     count = 0;
+    state = "REST";
   };
 
   return {
     push(s: Sample): GestureEvent[] {
       const { t } = s;
       if (![t, s.ax, s.ay, s.az].every(Number.isFinite)) return [];
-      if (prevT !== null && t < prevT) clearAll();
+      if (prevT !== null && (t < prevT || t - prevT > 2000)) clearAll();
       lastT = t;
       const v = unit(s.ax, s.ay, s.az);
       if (!v) return [];
@@ -131,19 +157,33 @@ export function createRepDetector(customConfig?: Partial<RepConfig>) {
       smooth += a * (angle - smooth);
 
       if (!moving) {
+        if (state === "COMPLETED") state = "REST";
         if (smooth > hysteresis) {
           moving = true;
           moveStart = t;
           peak = smooth;
+          state = "ASCENDING";
         }
         return [];
       }
-      peak = Math.max(peak, smooth);
+      if (smooth > peak) {
+        peak = smooth;
+        state = "ASCENDING";
+      } else if (state === "ASCENDING") {
+        state = "PEAK";
+      }
+      if (smooth <= peak - 1.5) {
+        state = "DESCENDING";
+      }
       if (smooth >= hysteresis) return [];
 
       // Back at rest: the movement is over.
       moving = false;
-      if (peak < minRom) return [];
+      if (peak < minRom) {
+        state = "REST";
+        return [];
+      }
+      state = "COMPLETED";
       count++;
       const tempoSec = (t - moveStart) / 1000;
       return [
@@ -163,6 +203,9 @@ export function createRepDetector(customConfig?: Partial<RepConfig>) {
     reset(): void {
       clearAll();
     },
+    getState(): RepState {
+      return state;
+    },
     /** For the live screen: where the phone is now, and how far calibration has got. */
     status(): RepStatus {
       return {
@@ -178,6 +221,13 @@ export function createRepDetector(customConfig?: Partial<RepConfig>) {
       };
     },
   };
+}
+
+export interface RepDetectorInstance {
+  push(s: Sample): GestureEvent[];
+  reset(): void;
+  getState(): RepState;
+  status(): RepStatus;
 }
 
 /** What the rep detector knows right now. */

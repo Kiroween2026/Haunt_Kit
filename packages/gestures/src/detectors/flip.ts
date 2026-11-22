@@ -1,6 +1,17 @@
 // Built by Yadnesh for Anish's gestures package (Anish is out this week). Owner: Anish.
 import type { Detector, GestureEvent, Sample } from "@haunt-kit/protocol";
 
+/**
+ * State constants for the Flip Gesture Detector.
+ * 1: Face-Down, 0: Face-Up / Flipped Back
+ */
+export const FLIP_STATE = {
+  FACE_DOWN: 1,
+  FACE_UP: 0,
+} as const;
+
+export type FlipState = (typeof FLIP_STATE)[keyof typeof FLIP_STATE];
+
 /** Configuration options for the Flip Detector. */
 export interface FlipConfig {
   /** `az` below this means face-down, in m/s². Default: -7 */
@@ -29,11 +40,17 @@ export function createFlipDetector(customConfig?: Partial<FlipConfig>) {
 
   let faceDown = false;
   let pendingSince: number | null = null;
+  let lastT: number | null = null;
 
   return {
     push(s: Sample): GestureEvent[] {
       const { t, az } = s;
       if (!Number.isFinite(t) || !Number.isFinite(az)) return [];
+      if (lastT !== null && t < lastT) {
+        faceDown = false;
+        pendingSince = null;
+      }
+      lastT = t;
       const wantsChange = faceDown ? az > release : az < down;
       if (!wantsChange) {
         pendingSince = null;
@@ -49,6 +66,7 @@ export function createFlipDetector(customConfig?: Partial<FlipConfig>) {
     reset(): void {
       faceDown = false;
       pendingSince = null;
+      lastT = null;
     },
   };
 }

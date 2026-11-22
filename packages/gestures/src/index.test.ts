@@ -1,23 +1,49 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_FLICK_CONFIG,
+  DEFAULT_FLIP_CONFIG,
   DEFAULT_HOLD_STILL_CONFIG,
+  DEFAULT_REP_CONFIG,
+  DEFAULT_SCREAM_CONFIG,
   DEFAULT_SHAKE_CONFIG,
+  DEFAULT_SPIN_CONFIG,
+  DEFAULT_TAP_CONFIG,
   DEFAULT_TILT_CONFIG,
+  FLICK_DIRECTION,
+  FLIP_STATE,
   PACKAGE_NAME,
   RECORDING_OS,
   RecordingMetaSchema,
   RecordingSchema,
   ReplayPlayer,
+  SPIN_DIRECTION,
+  createFlickDetector,
+  createFlipDetector,
   createGhostPlayer,
   createHoldStillDetector,
+  createRepDetector,
+  createScreamDetector,
   createShakeDetector,
+  createSpinDetector,
+  createTapDetector,
   createTiltDetector,
+  flickDetector,
+  flipDetector,
   holdStillDetector,
   recordingMetaSchema,
   recordingSchema,
+  repDetector,
   sampleSchema,
+  screamDetector,
   shakeDetector,
+  spinDetector,
+  tapDetector,
   tiltDetector,
+  type AnyDetector,
+  type FlickConfig,
+  type FlickDirection,
+  type FlipConfig,
+  type FlipState,
   type GhostPlayerAdapter,
   type GhostPlayerOptions,
   type GhostRecording,
@@ -25,8 +51,17 @@ import {
   type PlayRealtimeOptions,
   type RecordingMeta,
   type RecordingOS,
+  type RepBaseline,
+  type RepConfig,
+  type RepDetectorInstance,
+  type RepState,
   type Sample,
+  type ScreamConfig,
   type ShakeConfig,
+  type SpinConfig,
+  type SpinDirection,
+  type TapConfig,
+  type TapSample,
   type TiltConfig,
 } from "./index";
 
@@ -42,6 +77,20 @@ type _PublicTypes = [
   Sample,
   ShakeConfig,
   TiltConfig,
+  FlickConfig,
+  FlickDirection,
+  SpinConfig,
+  SpinDirection,
+  FlipConfig,
+  FlipState,
+  ScreamConfig,
+  TapConfig,
+  TapSample,
+  RepConfig,
+  RepBaseline,
+  RepState,
+  RepDetectorInstance,
+  AnyDetector,
 ];
 
 describe("@haunt-kit/gestures public exports", () => {
@@ -203,6 +252,142 @@ describe("@haunt-kit/gestures public exports", () => {
     expect(createHoldStillDetector).toBeDefined();
 
     const instance = createHoldStillDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports flick detector, factory and default config", () => {
+    expect(flickDetector).toBeDefined();
+    expect(flickDetector.name).toBe("flick");
+    expect(flickDetector.defaults).toEqual(DEFAULT_FLICK_CONFIG);
+    expect(createFlickDetector).toBeDefined();
+    expect(FLICK_DIRECTION).toBeDefined();
+
+    const instance = createFlickDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports spin detector, factory and default config", () => {
+    expect(spinDetector).toBeDefined();
+    expect(spinDetector.name).toBe("spin");
+    expect(spinDetector.defaults).toEqual(DEFAULT_SPIN_CONFIG);
+    expect(createSpinDetector).toBeDefined();
+    expect(SPIN_DIRECTION).toBeDefined();
+
+    const instance = createSpinDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports flip detector, factory and default config", () => {
+    expect(flipDetector).toBeDefined();
+    expect(flipDetector.name).toBe("flip");
+    expect(flipDetector.defaults).toEqual(DEFAULT_FLIP_CONFIG);
+    expect(createFlipDetector).toBeDefined();
+    expect(FLIP_STATE).toBeDefined();
+
+    const instance = createFlipDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports scream detector, factory and default config", () => {
+    expect(screamDetector).toBeDefined();
+    expect(screamDetector.name).toBe("scream");
+    expect(screamDetector.defaults).toEqual(DEFAULT_SCREAM_CONFIG);
+    expect(createScreamDetector).toBeDefined();
+
+    const instance = createScreamDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+      rms: 0.1,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports tap detector, factory and default config", () => {
+    expect(tapDetector).toBeDefined();
+    expect(tapDetector.name).toBe("tap");
+    expect(tapDetector.defaults).toEqual(DEFAULT_TAP_CONFIG);
+    expect(createTapDetector).toBeDefined();
+
+    const instance = createTapDetector();
+    const noEvents = instance.push({
+      t: 100,
+      ax: 0,
+      ay: 0,
+      az: 9.81,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+      alpha: 0,
+      beta: 0,
+      gamma: 0,
+    });
+    expect(noEvents).toHaveLength(0);
+  });
+
+  it("exports rep detector, factory and default config", () => {
+    expect(repDetector).toBeDefined();
+    expect(repDetector.name).toBe("rep");
+    expect(repDetector.defaults).toEqual(DEFAULT_REP_CONFIG);
+    expect(createRepDetector).toBeDefined();
+
+    const instance = createRepDetector();
     const noEvents = instance.push({
       t: 100,
       ax: 0,
