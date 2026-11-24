@@ -36,18 +36,10 @@ export function Gauge({
   className = "",
 }: GaugeProps) {
   // Safe numeric parsing & fallback guards
-  const safeAngle =
-    typeof liveAngle === "number" && Number.isFinite(liveAngle)
-      ? Math.max(0, liveAngle)
-      : 0;
+  const safeAngle = typeof liveAngle === "number" && Number.isFinite(liveAngle) ? Math.max(0, liveAngle) : 0;
   const safeTarget =
-    typeof targetRomDeg === "number" && Number.isFinite(targetRomDeg)
-      ? Math.max(0, targetRomDeg)
-      : 60;
-  const safeMax =
-    typeof maxAngle === "number" && Number.isFinite(maxAngle) && maxAngle > 0
-      ? maxAngle
-      : 180;
+    typeof targetRomDeg === "number" && Number.isFinite(targetRomDeg) ? Math.max(0, targetRomDeg) : 60;
+  const safeMax = typeof maxAngle === "number" && Number.isFinite(maxAngle) && maxAngle > 0 ? maxAngle : 180;
 
   const clampedAngle = Math.min(safeMax, safeAngle);
   const fraction = safeMax > 0 ? clampedAngle / safeMax : 0;
@@ -76,13 +68,7 @@ export function Gauge({
       aria-valuemax={Math.round(safeMax)}
       aria-valuetext={`${roundedAngle} degrees. Target is ${roundedTarget} degrees.`}
     >
-      <svg
-        className="steady-gauge-svg"
-        viewBox="0 0 240 155"
-        width="100%"
-        height="100%"
-        aria-hidden="true"
-      >
+      <svg className="steady-gauge-svg" viewBox="0 0 240 155" width="100%" height="100%" aria-hidden="true">
         {/* Background track arc (0° to 180°) using border/surface tokens */}
         <path
           d={`M ${CENTER_X - ARC_RADIUS} ${CENTER_Y} A ${ARC_RADIUS} ${ARC_RADIUS} 0 0 1 ${CENTER_X + ARC_RADIUS} ${CENTER_Y}`}
@@ -113,11 +99,7 @@ export function Gauge({
         <path
           d={`M ${CENTER_X - ARC_RADIUS} ${CENTER_Y} A ${ARC_RADIUS} ${ARC_RADIUS} 0 0 1 ${CENTER_X + ARC_RADIUS} ${CENTER_Y}`}
           fill="none"
-          stroke={
-            isTargetReached
-              ? "var(--hk-color-success, #16A34A)"
-              : "var(--hk-color-accent, #0D9488)"
-          }
+          stroke={isTargetReached ? "var(--hk-color-success, #16A34A)" : "var(--hk-color-accent, #0D9488)"}
           strokeWidth="14"
           strokeLinecap="round"
           strokeDasharray={`${ARC_LENGTH}`}
@@ -132,11 +114,7 @@ export function Gauge({
             y1={targetInnerY}
             x2={targetOuterX}
             y2={targetOuterY}
-            stroke={
-              isTargetReached
-                ? "var(--hk-color-success, #16A34A)"
-                : "var(--hk-color-text, #16A34A)"
-            }
+            stroke={isTargetReached ? "var(--hk-color-success, #16A34A)" : "var(--hk-color-text, #16A34A)"}
             strokeWidth="3.5"
             strokeLinecap="round"
             className="gauge-target-tick"
@@ -184,11 +162,7 @@ export function Gauge({
           y={CENTER_Y - 14}
           fontSize="36"
           fontWeight="700"
-          fill={
-            isTargetReached
-              ? "var(--hk-color-success, #16A34A)"
-              : "var(--hk-color-text, #0F172A)"
-          }
+          fill={isTargetReached ? "var(--hk-color-success, #16A34A)" : "var(--hk-color-text, #0F172A)"}
           fontFamily="var(--hk-font-heading, var(--hk-font-body, system-ui, sans-serif))"
           textAnchor="middle"
           className="gauge-angle-readout"
