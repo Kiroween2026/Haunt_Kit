@@ -1,6 +1,17 @@
 // Built by Yadnesh for Anish's gestures package (Anish is out this week). Owner: Anish.
 import type { Detector, GestureEvent, Sample } from "@haunt-kit/protocol";
 
+/**
+ * Direction constants for the Spin Gesture Detector.
+ * 1: Clockwise, -1: Counter-Clockwise
+ */
+export const SPIN_DIRECTION = {
+  CLOCKWISE: 1,
+  COUNTER_CLOCKWISE: -1,
+} as const;
+
+export type SpinDirection = (typeof SPIN_DIRECTION)[keyof typeof SPIN_DIRECTION];
+
 /** Configuration options for the Spin Detector. */
 export interface SpinConfig {
   /** Rotation around the screen axis needed to count as a spin, in degrees. Default: 300 */
@@ -36,7 +47,7 @@ export function createSpinDetector(customConfig?: Partial<SpinConfig>) {
 
   let steps: { t: number; deg: number }[] = [];
   let sum = 0;
-  let last: { t: number; gz: number } | null = null;
+  let last: { t: number; gz: number; alpha?: number } | null = null;
   let lastEventTime: number | null = null;
 
   const clear = () => {
@@ -46,7 +57,7 @@ export function createSpinDetector(customConfig?: Partial<SpinConfig>) {
 
   return {
     push(s: Sample): GestureEvent[] {
-      const { t, gz } = s;
+      const { t, gz, alpha } = s;
       if (!Number.isFinite(t) || !Number.isFinite(gz)) return [];
       if (last && t < last.t) {
         clear();
@@ -54,11 +65,17 @@ export function createSpinDetector(customConfig?: Partial<SpinConfig>) {
       }
       if (last && t > last.t) {
         const dt = Math.min(t - last.t, maxGap);
-        const deg = (((gz + last.gz) / 2) * dt) / 1000; // trapezoid
+        let deg = 0;
+        if (Math.abs(gz) > 0.001 || Math.abs(last.gz) > 0.001) {
+          deg = (((gz + last.gz) / 2) * dt) / 1000; // trapezoid
+        } else if (Number.isFinite(alpha) && Number.isFinite(last.alpha)) {
+          const diff = alpha - last.alpha!;
+          deg = ((diff + 540) % 360) - 180;
+        }
         steps.push({ t, deg });
         sum += deg;
       }
-      last = { t, gz };
+      last = { t, gz, alpha: Number.isFinite(alpha) ? alpha : undefined };
       const cutoff = t - windowMs;
       while (steps.length > 0 && steps[0]!.t < cutoff) sum -= steps.shift()!.deg;
       if (steps.length === 0) sum = 0; // avoid drift from float rounding
