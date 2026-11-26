@@ -40,6 +40,23 @@ export const DEFAULT_REP_CONFIG: RepConfig = {
   smoothingMs: 100,
 };
 
+/**
+ * Reference sample rate in Hz used to map the unitless `smoothingFactor` (0..1)
+ * to an equivalent exponential smoothing time constant `smoothingMs` (tau):
+ *
+ * In continuous-time exponential smoothing with time constant tau and sample interval dt:
+ *   alpha = 1 - exp(-dt / tau)  =>  tau = -dt / ln(1 - alpha)
+ *
+ * Using a standard mobile motion reference rate of 60 Hz (dt ≈ 16.67 ms):
+ *   tau = -16.667 / ln(1 - smoothingFactor)
+ */
+export const REFERENCE_SAMPLE_RATE_HZ = 60;
+export const REFERENCE_DT_MS = 1000 / REFERENCE_SAMPLE_RATE_HZ;
+
+function toFiniteNumber(val: unknown, fallback: number): number {
+  return typeof val === "number" && Number.isFinite(val) ? val : fallback;
+}
+
 /** If the phone moves more than this while calibrating, calibration starts over. */
 const CALIBRATION_WOBBLE_DEG = 12;
 const DEG = 180 / Math.PI;
@@ -77,13 +94,35 @@ function angleBetween(a: Vec, b: Vec): number {
  *    Smaller movements never count.
  */
 export function createRepDetector(customConfig?: Partial<RepConfig>): RepDetectorInstance {
-  const config = { ...DEFAULT_REP_CONFIG, ...customConfig };
-  const hysteresis = config.hysteresisDeg > 0 ? config.hysteresisDeg : DEFAULT_REP_CONFIG.hysteresisDeg;
-  const minRom = Math.max(hysteresis, config.minRomDeg);
-  const targetRom = Math.max(minRom, config.targetRomDeg);
-  const minTempoSec = Math.max(0, config.minTempoSec);
-  const calibrationMs = Math.max(0, config.calibrationMs);
-  const tau = Math.max(1, config.smoothingMs);
+  const rawHysteresis = toFiniteNumber(customConfig?.hysteresisDeg, DEFAULT_REP_CONFIG.hysteresisDeg);
+  const hysteresis = rawHysteresis > 0 ? rawHysteresis : DEFAULT_REP_CONFIG.hysteresisDeg;
+
+  const rawMinRom = toFiniteNumber(customConfig?.minRomDeg, DEFAULT_REP_CONFIG.minRomDeg);
+  const minRom = Math.max(hysteresis, rawMinRom);
+
+  const rawTargetRom = toFiniteNumber(customConfig?.targetRomDeg, DEFAULT_REP_CONFIG.targetRomDeg);
+  const targetRom = Math.max(minRom, rawTargetRom);
+
+  const rawMinTempo = toFiniteNumber(customConfig?.minTempoSec, DEFAULT_REP_CONFIG.minTempoSec);
+  const minTempoSec = Math.max(0, rawMinTempo);
+
+  const rawCalibrationMs = toFiniteNumber(customConfig?.calibrationMs, DEFAULT_REP_CONFIG.calibrationMs);
+  const calibrationMs = Math.max(0, rawCalibrationMs);
+
+  let effectiveSmoothingMs: number;
+  if (customConfig?.smoothingMs !== undefined) {
+    effectiveSmoothingMs = toFiniteNumber(customConfig.smoothingMs, DEFAULT_REP_CONFIG.smoothingMs);
+  } else if (customConfig?.smoothingFactor !== undefined) {
+    const factor = toFiniteNumber(customConfig.smoothingFactor, NaN);
+    if (factor > 0 && factor < 1) {
+      effectiveSmoothingMs = -REFERENCE_DT_MS / Math.log(1 - factor);
+    } else {
+      effectiveSmoothingMs = DEFAULT_REP_CONFIG.smoothingMs;
+    }
+  } else {
+    effectiveSmoothingMs = DEFAULT_REP_CONFIG.smoothingMs;
+  }
+  const tau = Math.max(1, toFiniteNumber(effectiveSmoothingMs, DEFAULT_REP_CONFIG.smoothingMs));
 
   // calibration
   let calStart: number | null = null;
@@ -101,10 +140,16 @@ export function createRepDetector(customConfig?: Partial<RepConfig>): RepDetecto
   let state: RepState = "REST";
 
   if (
-    config.baseline &&
-    (config.baseline.ax !== undefined || config.baseline.ay !== undefined || config.baseline.az !== undefined)
+    customConfig?.baseline &&
+    (customConfig.baseline.ax !== undefined ||
+      customConfig.baseline.ay !== undefined ||
+      customConfig.baseline.az !== undefined)
   ) {
-    const bUnit = unit(config.baseline.ax ?? 0, config.baseline.ay ?? 0, config.baseline.az ?? 9.81);
+    const bUnit = unit(
+      customConfig.baseline.ax ?? 0,
+      customConfig.baseline.ay ?? 0,
+      customConfig.baseline.az ?? 9.81,
+    );
     if (bUnit) {
       rest = bUnit;
     }
