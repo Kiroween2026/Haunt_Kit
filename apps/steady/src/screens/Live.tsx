@@ -1,4 +1,5 @@
 import { Button } from "@haunt-kit/ui";
+import { Gauge } from "../components/Gauge";
 import type { CoachView } from "../coach";
 import type { Exercise } from "../exercises";
 
@@ -8,7 +9,6 @@ export function Live({ exercise, view, voiceOnly, demo, onStop }: Props) {
   const calibrating = view.phase === "calibrating";
   const fb = view.lastFeedback;
   const max = Math.max(view.targetDeg * 1.25, view.status.angleDeg, 1);
-  const pct = (deg: number) => `${Math.min(100, Math.round((deg / max) * 100))}%`;
 
   if (voiceOnly) {
     return (
@@ -61,18 +61,12 @@ export function Live({ exercise, view, voiceOnly, demo, onStop }: Props) {
             {fb ? `Rep ${view.count}: ${fb.text}` : "Start your first rep."}
           </p>
           <div className="st-stack">
-            <div
-              className="st-gauge"
-              role="meter"
-              aria-label="Angle"
-              aria-valuemin={0}
-              aria-valuemax={Math.round(max)}
-              aria-valuenow={Math.round(view.status.angleDeg)}
-              aria-valuetext={`${Math.round(view.status.angleDeg)} degrees. Aim for ${view.targetDeg}.`}
-            >
-              <div className="st-gauge__fill" style={{ width: pct(view.status.angleDeg) }} />
-              <div className="st-gauge__mark" style={{ left: pct(view.targetDeg) }} aria-hidden="true" />
-            </div>
+            <Gauge
+              liveAngle={view.status.angleDeg}
+              targetRomDeg={view.targetDeg}
+              maxAngle={Math.max(Math.round(max), 180)}
+              ariaLabel="Angle"
+            />
             <div className="st-gauge__labels">
               <span>{Math.round(view.status.angleDeg)}°</span>
               <span>Aim for {view.targetDeg}°</span>
