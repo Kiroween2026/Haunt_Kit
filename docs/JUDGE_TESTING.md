@@ -35,7 +35,7 @@ If you prefer to run the code locally from source:
 ### Start the Local Services
 
 ```bash
-git clone https://github.com/Kiroween2026/Haunt_Kit.git && cd Haunt_Kit
+git clone https://github.com/Kiroween2026/KiroHauntKit.git && cd KiroHauntKit
 pnpm install
 
 # Start local services across separate terminal tabs:
