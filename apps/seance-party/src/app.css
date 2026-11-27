@@ -200,3 +200,9 @@ body,
   transform: scale(1.6);
   margin: var(--hk-space-5);
 }
+
+/* Toasts go to the top right on the big screen, so they never cover the game's own numbers at the bottom. */
+.sp-app .hk-toasts {
+  inset: 4.5rem var(--hk-space-4) auto auto;
+  align-items: flex-end;
+}
