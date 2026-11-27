@@ -75,6 +75,21 @@ test.describe("Séance Party, alone with bots (no phones, no relay)", () => {
     expect(await problems(page)).toEqual([]);
   });
 
+  test("a toast never covers the stats line at the bottom of the Ouija screen", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto(`${PARTY}?practice=1&speed=6`);
+    await page.getByRole("button", { name: "Fill to 4" }).click();
+    await page.getByRole("button", { name: "Start the séance" }).click();
+    await expect(page.getByText(/^Time left:/)).toBeVisible({ timeout: 30_000 });
+    // Toasts appear when bots spell words or someone leaves. Wait for the first one, then compare positions.
+    const toast = page.locator(".hk-toast").first();
+    await expect(toast).toBeVisible({ timeout: 90_000 });
+    const box = await toast.boundingBox();
+    const viewport = page.viewportSize()!;
+    // The game's numbers sit at the bottom, so toasts must stay in the top half.
+    expect(box!.y + box!.height, "toast reaches the bottom half").toBeLessThan(viewport.height / 2);
+  });
+
   test("with reduced motion, nothing on the lobby moves", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`${PARTY}?practice=1`);
