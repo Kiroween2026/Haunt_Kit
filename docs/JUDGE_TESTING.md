@@ -11,9 +11,9 @@ Haunt Kit is designed with flexible testing options so judges can evaluate core 
 
 You can immediately test the deployed production applications in your browser:
 
-- **Séance Party (Big-Screen Game):** https://haunt-kit-seance.pages.dev
-- **Steady (Exercise Companion):** https://haunt-kit-steady.pages.dev
-- **Phone Controller (Client):** https://haunt-kit-play.pages.dev
+- **Séance Party (Big-Screen Game):** https://kirohauntkit-seance.pages.dev
+- **Steady (Exercise Companion):** https://kirohauntkit-steady.pages.dev
+- **Phone Controller (Client):** https://kirohauntkit-play.pages.dev
 
 > [!NOTE]
 > **Branch & Feature Status:**
@@ -102,7 +102,7 @@ Open `http://localhost:5180/sim.html` (or click "Desktop simulator" from the pho
 
 ### Option A: Solo with AI Ghost Bots (2 minutes — No Phone Needed)
 
-1. Open **Séance Party** (https://haunt-kit-seance.pages.dev). If testing locally without a relay, it operates in **Practice mode**.
+1. Open **Séance Party** (https://kirohauntkit-seance.pages.dev). If testing locally without a relay, it operates in **Practice mode**.
 2. In the lobby, click **Fill to 4**. Three AI ghost bots will join the room. Bots simulate human response delays and occasional steering errors.
 3. Click **Start the séance**. The game cycles through three mini-games:
    - **Ouija Planchette:** The bots tilt to spell out mystery words.
@@ -124,7 +124,7 @@ Open `http://localhost:5180/sim.html` (or click "Desktop simulator" from the pho
 
 ### Option C: With a Real Smartphone (3 minutes)
 
-1. Open **Séance Party** on your computer screen (live link https://haunt-kit-seance.pages.dev or local setup with tunnel).
+1. Open **Séance Party** on your computer screen (live link https://kirohauntkit-seance.pages.dev or local setup with tunnel).
 2. Scan the displayed QR code with your phone camera to open the controller.
 3. Tap **Enter the séance** and allow Motion and Microphone permissions when prompted.
 4. Start the game from the computer. Tilt your phone to steer the planchette, freeze your hands during Hold Still, and shout during the Banshee scream-off!
@@ -136,7 +136,7 @@ Open `http://localhost:5180/sim.html` (or click "Desktop simulator" from the pho
 
 ### Option A: Interactive Demo Mode (2 minutes — No Phone Needed)
 
-1. Open **Steady** (https://haunt-kit-steady.pages.dev).
+1. Open **Steady** (https://kirohauntkit-steady.pages.dev).
 2. Read the non-medical companion notice and click **I understand**.
 3. Select **Shoulder raise**, then click **Try the demo (no phone needed)**.
 4. Watch the simulated exercise session execute five repetitions:
@@ -150,7 +150,7 @@ Open `http://localhost:5180/sim.html` (or click "Desktop simulator" from the pho
 
 ### Option B: On a Real Smartphone (2 minutes)
 
-1. Open **Steady** on your smartphone browser (live link https://haunt-kit-steady.pages.dev or local setup via `cloudflared tunnel --url http://localhost:5184`).
+1. Open **Steady** on your smartphone browser (live link https://kirohauntkit-steady.pages.dev or local setup via `cloudflared tunnel --url http://localhost:5184`).
 2. Select **Shoulder raise**, tap **Start**, and approve motion sensor access.
 3. **Resting Baseline Calibration:** Hold the phone in your hand with your arm resting down for 2 seconds. The app calibrates your baseline resting angle and announces _"Ready. Start your reps."_
 4. Raise your arm in front of you toward shoulder height and lower it, completing 5 smooth reps.

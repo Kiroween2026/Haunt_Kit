@@ -62,24 +62,24 @@ jobs:
             pnpm exec wrangler pages deploy "$1/dist" --project-name "$2" --branch main --commit-dirty=true
           }
           # Called directly (not inside $(...)), so set -e stops the step on the first failure.
-          deploy packages/controller haunt-kit-play
-          export VITE_CONTROLLER_URL="https://haunt-kit-play.pages.dev/"
-          deploy apps/seance-party haunt-kit-seance
-          deploy apps/steady haunt-kit-steady
+          deploy packages/controller kirohauntkit-play
+          export VITE_CONTROLLER_URL="https://kirohauntkit-play.pages.dev/"
+          deploy apps/seance-party kirohauntkit-seance
+          deploy apps/steady kirohauntkit-steady
           {
             echo "## Production URLs"
             echo "| What | URL |"
             echo "|---|---|"
             echo "| Relay | ${{ steps.relay.outputs.wss }} |"
-            echo "| Phone controller | https://haunt-kit-play.pages.dev |"
-            echo "| Séance Party | https://haunt-kit-seance.pages.dev |"
-            echo "| Steady | https://haunt-kit-steady.pages.dev |"
+            echo "| Phone controller | https://kirohauntkit-play.pages.dev |"
+            echo "| Séance Party | https://kirohauntkit-seance.pages.dev |"
+            echo "| Steady | https://kirohauntkit-steady.pages.dev |"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Check the live pages answer
         run: |
           set -euo pipefail
-          for url in https://haunt-kit-play.pages.dev https://haunt-kit-seance.pages.dev https://haunt-kit-steady.pages.dev; do
+          for url in https://kirohauntkit-play.pages.dev https://kirohauntkit-seance.pages.dev https://kirohauntkit-steady.pages.dev; do
             ok=no
             # A brand-new *.pages.dev address can take a couple of minutes to appear in DNS.
             for try in $(seq 1 24); do
