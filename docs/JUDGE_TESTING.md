@@ -1,77 +1,203 @@
-# Testing Haunt Kit (for judges)
+# Testing Haunt Kit (Judge Testing Guide)
 
-You don't need friends, an app install or even a phone. Pick the way that fits you. Live links:
+Haunt Kit is designed with flexible testing options so judges can evaluate core game loops, application rules, AI ghost bots, and simulated exercise sessions directly from a desktop browser, or test live physical motion sensors with a smartphone:
 
-- Séance Party: https://haunt-kit-seance.pages.dev
-- Steady: https://haunt-kit-steady.pages.dev
-- Phone controller (the QR code opens it): https://haunt-kit-play.pages.dev
+- **Without a phone (Computer / Laptop):** You can test the full Séance Party game loops with AI ghost bots, steer via the desktop mouse simulator, run Steady's automated 5-rep demo mode, inspect local session reports, and execute all automated test suites.
+- **With a smartphone (Real Motion Sensors):** You can test physical spatial gestures—including real-time accelerometer/gyroscope streaming, phone tilt/shake/scream gestures, and on-device joint Range of Motion (ROM) tracking—over a secure HTTPS connection.
 
-Every step below is one our automated tests run on Safari's engine (WebKit) and Chromium.
+---
 
-## A. Séance Party alone, no phone (2 minutes)
+## 1. Quick Start: Live Hosted Demos
 
-1. Open **Séance Party** on your computer. If there is no relay it says **Practice mode** and still works.
-2. Click **Fill to 4**. Three ghost bots join. Bots play like people: they react slowly and make mistakes.
-3. Click **Start the séance**. Three games follow, about three minutes in all:
-   - **Ouija Planchette:** everyone's tilt steers one planchette. Bots spell the words.
-   - **Hold Still:** the ghost looks away (dance), turns (freeze), then looks. Anyone moving is out.
-   - **Banshee Scream-off:** the loudest scream wins.
-4. At the end you see **Last ghost standing** and the final scores. **Play again** keeps the bots.
+You can immediately test the deployed production applications in your browser:
 
-## B. Séance Party with you in it, no phone (3 minutes)
+- **Séance Party (Big-Screen Game):** https://haunt-kit-seance.pages.dev
+- **Steady (Exercise Companion):** https://haunt-kit-steady.pages.dev
+- **Phone Controller (Client):** https://haunt-kit-play.pages.dev
 
-Needs the relay: open the live link, not Practice mode. (Locally: `pnpm dev:relay`.)
+> [!NOTE]
+> **Branch & Feature Status:**
+>
+> - The live production deployment and `main` branch display Steady's initial **horizontal progress meter bar**.
+> - The **180° circular ROM Goniometer Gauge** (`Gauge.tsx`), featuring radial SVG coordinate projection and dynamic target threshold ticks, is implemented and tested exclusively on the `anish/steady-gauge-integration` branch (commit `74d5177`) and is NOT present on `main` or current production.
 
-1. In the lobby, click **Join from this computer**. A new tab opens.
-2. Type a name and click **Join with this computer**. You appear in the lobby as a ghost.
-3. Back in the lobby tab, click **Fill to 4** and **Start the séance**.
-4. In your tab: **move the mouse** over the circle to tilt, press **H** to hold still, press **S** to shake, and **allow the microphone** to scream in the Banshee game.
+---
 
-## C. Séance Party with your phone (3 minutes)
+## 2. Local Setup & Running Locally (Optional)
 
-1. Open the live link on your computer and scan the QR code with your phone's camera.
-2. Tap **Enter the séance**. Allow motion and the microphone.
-   - On iPhone, if Safari doesn't ask, close the tab and scan again.
-3. Start the game from the computer. Tilt your phone to steer. Lock the screen for a few seconds: you come back as the same ghost.
+If you prefer to run the code locally from source:
 
-## D. Steady, no phone (2 minutes)
+### Prerequisites
 
-1. Open **Steady**. Read the notice (not a medical device), then click **I understand**.
-2. Click **Shoulder raise**, then **Try the demo (no phone needed)**.
-3. A pretend person does five reps. Watch the count, the angle gauge and the advice: one rep is **Not full range** and one is **Too fast**. Turn your sound on to hear it count.
-4. Click **Stop**, then **Report for my therapist**. Nothing is uploaded. **My sessions** (on the home screen) shows what is saved on this device.
+- **Node.js:** v20.x or higher
+- **pnpm:** v9.x or v10.x (`corepack enable`)
 
-## E. Steady on your phone (2 minutes)
-
-1. Open **Steady** on your phone, pick **Shoulder raise**, tap **Start**, and allow motion.
-2. Hold the phone in your hand, arm down, for 2 seconds. Then raise your arm in front of you and lower it, five times.
-3. Try **Settings** on the home screen: **Voice only**, **High contrast**, and **Large** text.
-
-## F. Add phone controls to your own app
-
-See "Add phone controls to your app" in the [README](../README.md): `createRoom` and `createMockRoom` (fake players, no relay) take a few lines.
-
-## Run it locally instead
+### Start the Local Services
 
 ```bash
 git clone https://github.com/Kiroween2026/haunt-kit.git && cd haunt-kit
-corepack enable && pnpm install
-pnpm dev:relay          # in one terminal
-pnpm dev:controller     # in another (phone page, port 5180)
-pnpm dev:seance         # Séance Party, http://localhost:5183
-pnpm dev:steady         # Steady, http://localhost:5184
+pnpm install
+
+# Start local services across separate terminal tabs:
+pnpm dev:relay          # WebSocket relay on ws://127.0.0.1:8787
+pnpm dev:controller     # Phone controller & desktop simulator on http://localhost:5180
+pnpm dev:seance         # Séance Party app on http://localhost:5183
+pnpm dev:steady         # Steady physical therapy app on http://localhost:5184
 ```
 
-For a real phone you need HTTPS: `cloudflared tunnel --url http://localhost:5180`, then open Séance Party with `?play=https://<tunnel>.trycloudflare.com`.
+### Local Physical-Device Testing via HTTPS Tunnels
 
-## Something not working?
+Mobile browsers strictly require HTTPS to access accelerometer/gyroscope sensors (`DeviceMotionEvent`) and microphone input (`getUserMedia`). When testing locally with a physical smartphone rather than the live hosted links:
 
-| You see                         | Do this                                                                                                              |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| "Practice mode (no phones)"     | The relay isn't reachable. Bots still work. For phones, use the live link or run `pnpm dev:relay`.                   |
-| "Motion is blocked" on iPhone   | Close the tab and scan again, tap **Allow**. Or Settings → Apps → Safari → Advanced → Website Data, remove the site. |
-| "This page needs HTTPS"         | Use the https:// link, not an IP address.                                                                            |
-| "Room not found"                | Check the 4 letters. A room closes 2 minutes after the big screen is closed.                                         |
-| Scream doesn't count            | Reload and allow the microphone.                                                                                     |
-| Steady says "no motion sensors" | You're on a computer. Click **Try the demo**.                                                                        |
-| Steady doesn't speak            | Turn the sound up, and check **Count reps out loud** in Settings. iPhone only speaks after a tap.                    |
+- **For Séance Party (Phone Controller):**
+  1. In a terminal, run: `cloudflared tunnel --url http://localhost:5180`
+  2. The controller dev server on port `5180` proxies `/relay` to the local WebSocket relay on `:8787`, so this single tunnel covers both the web client and WebSocket transport.
+  3. On your computer, open Séance Party with the tunnel URL:
+     `http://localhost:5183/?play=https://<your-tunnel>.trycloudflare.com`
+  4. Scan the displayed QR code with your smartphone camera.
+- **For Steady (Exercise Companion):**
+  1. In a terminal, run: `cloudflared tunnel --url http://localhost:5184`
+  2. Steady is a standalone, single-device application served on port `5184` (it does not use the controller on `5180` or relay on `8787`).
+  3. On your smartphone browser, navigate directly to:
+     `https://<your-tunnel>.trycloudflare.com`
+
+---
+
+## 3. Testing Gesture Detection & Benchmarks
+
+Haunt Kit includes a zero-dependency, pure TypeScript gesture recognition engine in `packages/gestures/`:
+
+### Automated Invariant & Benchmark Tests
+
+From the project root, run:
+
+```bash
+# Run gesture detector tests, physical invariants, and real Ghost Recording benchmarks:
+pnpm --filter @haunt-kit/gestures test
+```
+
+**Test counts & platform verification:**
+
+- In PR #22, all 24 core gesture detector, property-based invariant, and benchmark test files (**389 tests**) pass locally on Windows without error.
+- Across the entire package on `main` (which includes `packages/gestures/src/hook/work-order.test.ts` for 25 files and 401 tests total), all **401 tests pass** in GitHub Actions Linux CI.
+- On local Windows, 400 of 401 tests pass, with 1 CLI test in `work-order.test.ts` failing due to Windows child-process spawning (`pnpm` vs `pnpm.cmd`).
+
+**What is tested:**
+
+- **Physical Invariants (`src/pbt/`):** Property-based tests via `fast-check` verifying stillness immunity (no triggers when motionless), SO(3) 3D spatial rotation invariance, sample rate invariance (30 Hz to 120 Hz), and temporal causality ($t_{\text{start}} \le t_{\text{event}} \le t_{\text{end}}$).
+- **Ghost Recording Benchmarks (`src/recording/benchmark.test.ts`):** Replays 6 real Android phone sensor recordings from `recordings/`. Flat table recordings confirm zero false triggers for shake, flick, spin, flip, scream, or rep.
+- _(Note on Tap Benchmark: Ghost Recordings record sensor streams without touch coordinates; tap detector correctly emits zero events due to absent touch data rather than physical false-positive rejection)_.
+
+### Live Interactive Testing via Desktop Simulator
+
+Open `http://localhost:5180/sim.html` (or click "Desktop simulator" from the phone controller page):
+
+- Move your mouse over the simulated phone surface to stream live continuous tilt coordinates.
+- Press **S** to simulate a shake gesture.
+- Press **H** to simulate a hold-still gesture.
+
+---
+
+## 4. Testing Séance Party (Party Game)
+
+### Option A: Solo with AI Ghost Bots (2 minutes — No Phone Needed)
+
+1. Open **Séance Party** (https://haunt-kit-seance.pages.dev). If testing locally without a relay, it operates in **Practice mode**.
+2. In the lobby, click **Fill to 4**. Three AI ghost bots will join the room. Bots simulate human response delays and occasional steering errors.
+3. Click **Start the séance**. The game cycles through three mini-games:
+   - **Ouija Planchette:** The bots tilt to spell out mystery words.
+   - **Hold Still:** When the ghost turns around, players must hold still or get eliminated.
+   - **Banshee Scream-off:** Players scream into their microphones; loudest audio takes the round.
+4. The game concludes with the final score scoreboard. Click **Play again** to restart.
+
+### Option B: Solo as a Player via Desktop Simulator (3 minutes — No Phone Needed)
+
+1. Open **Séance Party** (must be connected to a relay or live link).
+2. Click **Join from this computer**. A controller tab opens.
+3. Enter your player name and click **Join with this computer**. You appear in the lobby as a player ghost.
+4. In the lobby tab, click **Fill to 4** to populate remaining slots with bots, then click **Start the séance**.
+5. Switch to your controller tab to play:
+   - **Move the mouse** inside the circle to steer the Ouija planchette.
+   - Press **H** to freeze during Hold Still.
+   - Press **S** to shake off spirits.
+   - **Allow microphone access** to scream in the Banshee round.
+
+### Option C: With a Real Smartphone (3 minutes)
+
+1. Open **Séance Party** on your computer screen (live link https://haunt-kit-seance.pages.dev or local setup with tunnel).
+2. Scan the displayed QR code with your phone camera to open the controller.
+3. Tap **Enter the séance** and allow Motion and Microphone permissions when prompted.
+4. Start the game from the computer. Tilt your phone to steer the planchette, freeze your hands during Hold Still, and shout during the Banshee scream-off!
+5. **Reconnection Test:** Lock your phone screen for 5 seconds and unlock it—your session will automatically resume with the same player ID and ghost color.
+
+---
+
+## 5. Testing Steady (Physical Therapy Companion)
+
+### Option A: Interactive Demo Mode (2 minutes — No Phone Needed)
+
+1. Open **Steady** (https://haunt-kit-steady.pages.dev).
+2. Read the non-medical companion notice and click **I understand**.
+3. Select **Shoulder raise**, then click **Try the demo (no phone needed)**.
+4. Watch the simulated exercise session execute five repetitions:
+   - Live angle excursion tracks toward the target range marker:
+     - _On `main` / production:_ Displayed on the horizontal progress bar.
+     - _On `anish/steady-gauge-integration` branch (commit `74d5177`):_ Displayed on the circular 180° radial SVG goniometer dial.
+   - **Form guidance:** Notice that one rep triggers **Not full range** (did not reach 70°) and another triggers **Too fast** (< 1.2s cadence).
+   - Turn your sound on to hear automated rep counting and spoken audio feedback.
+5. Click **Stop**, then **Report for my therapist**. An on-device printable summary is generated without uploading any data.
+6. Return to the home screen and click **My sessions** to see your locally saved exercise history.
+
+### Option B: On a Real Smartphone (2 minutes)
+
+1. Open **Steady** on your smartphone browser (live link https://haunt-kit-steady.pages.dev or local setup via `cloudflared tunnel --url http://localhost:5184`).
+2. Select **Shoulder raise**, tap **Start**, and approve motion sensor access.
+3. **Resting Baseline Calibration:** Hold the phone in your hand with your arm resting down for 2 seconds. The app calibrates your baseline resting angle and announces _"Ready. Start your reps."_
+4. Raise your arm in front of you toward shoulder height and lower it, completing 5 smooth reps.
+5. Listen for audible rep counts and observe live real-time feedback.
+
+---
+
+## 6. Verifying Accessibility & Privacy Features
+
+From Steady's home screen, open **Settings** to test the accessibility suite:
+
+1. **Voice Only Mode:**
+   - Enable **Voice only**.
+   - Start an exercise: notice the visual motion meters are intentionally unmounted, presenting an uncluttered high-contrast counter with full spoken cues. This is designed for exercises where looking at a screen impairs posture or creates a hazard.
+2. **7:1+ High Contrast Theme:**
+   - Select **High contrast**. The entire app switches to a high-contrast palette exceeding 7:1 contrast ratios.
+3. **Large Text Scaling:**
+   - Select **Large** text size. Observe typography scaling cleanly across all screens without truncation or overlapping.
+4. **Reduced Motion:**
+   - When device accessibility setting "Reduce Motion" is enabled, all non-essential UI animations are disabled via `@haunt-kit/ui`.
+5. **Microphone Privacy:**
+   - In both apps, microphone access computes only a local mathematical RMS volume value (0.0 to 1.0) inside an `AnalyserNode`. Raw audio is never recorded, stored, or sent over the network.
+6. **Automated WCAG 2.1 AA Verification:**
+   - Run `pnpm test:e2e` locally to execute Playwright and axe (`@axe-core/playwright`) accessibility assertions across Chromium and WebKit (0 violations). In the E2E suite, this covers key flows including all three design system themes, the Séance Party lobby, QR host view, mini-games, and scoreboard, as well as Steady's disclaimer, exercise selection, calibration, live tracking, therapist report, and settings screens.
+
+---
+
+## 7. Expected Results & Known Limitations
+
+| Feature / Test               | Expected Result                                                                                                                            | Known Limitations & Notes                                                                                                                                                 |
+| :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Séance Party Lobby**       | Room code generated; bots/players appear with unique colors.                                                                               | In-memory rooms auto-close 2 minutes after host leaves.                                                                                                                   |
+| **Desktop Simulator**        | Mouse coordinates stream normalized $-1.0 \dots 1.0$ tilt values.                                                                          | Click inside simulator window to focus keyboard for S/H keys.                                                                                                             |
+| **Steady Exercise Tracking** | Counts reps; detects fast tempo (< 1.2s) and incomplete range.                                                                             | Companion tool only; strictly not a diagnostic or medical device.                                                                                                         |
+| **Steady Gauge Display**     | Horizontal progress meter on `main` and production; 180° circular dial exclusively on `anish/steady-gauge-integration` (commit `74d5177`). | The circular SVG dial requires checking out the gauge integration branch.                                                                                                 |
+| **Audio Feedback**           | Rep numbers and feedback spoken via Web Speech API.                                                                                        | On iOS Safari, speech synthesis requires an initial user screen tap.                                                                                                      |
+| **Session Persistence**      | Session history saved across page reloads in IndexedDB.                                                                                    | Clearing browser website data will reset local exercise history.                                                                                                          |
+| **Automated Test Suites**    | All 401 gesture tests and monorepo suites pass in GitHub Actions Linux CI.                                                                 | Local Windows runs of `pnpm test` report 3 OS-specific failures (path backslash assertions in `tools.test.ts` and `pnpm` vs `pnpm.cmd` spawning in `work-order.test.ts`). |
+
+---
+
+## 8. Troubleshooting
+
+| Symptom                             | Cause                                       | Solution                                                                                        |
+| :---------------------------------- | :------------------------------------------ | :---------------------------------------------------------------------------------------------- |
+| **"Practice mode (no phones)"**     | Big screen cannot reach relay.              | Use the live hosted link or run `pnpm dev:relay` locally. Bots still function in Practice mode. |
+| **"Motion is blocked" on iPhone**   | Sensor permission was previously denied.    | Close the Safari tab and rescan the QR code. Tap **Allow** when prompted.                       |
+| **"This page needs HTTPS"**         | Web motion/mic APIs require secure context. | Use `https://` URLs or tunnel local ports via Cloudflare Quick Tunnel (`cloudflared`).          |
+| **Steady says "no motion sensors"** | Browser reports no physical accelerometer.  | You are on a computer. Click **Try the demo** to test with the virtual player.                  |
+| **Steady does not speak**           | Audio volume is muted or disabled.          | Ensure device volume is up and verify **Count reps out loud** is checked in Settings.           |
