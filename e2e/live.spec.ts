@@ -2,9 +2,9 @@
 //   LIVE=1 pnpm exec playwright test e2e/live.spec.ts --project=chromium --project=webkit
 import { expect, test } from "@playwright/test";
 
-const PLAY = process.env.LIVE_PLAY ?? "https://staging.haunt-kit-play.pages.dev/";
-const PARTY = process.env.LIVE_PARTY ?? "https://staging.haunt-kit-seance.pages.dev/";
-const STEADY = process.env.LIVE_STEADY ?? "https://staging.haunt-kit-steady.pages.dev/";
+const PLAY = process.env.LIVE_PLAY ?? "https://staging.kirohauntkit-play.pages.dev/";
+const PARTY = process.env.LIVE_PARTY ?? "https://staging.kirohauntkit-seance.pages.dev/";
+const STEADY = process.env.LIVE_STEADY ?? "https://staging.kirohauntkit-steady.pages.dev/";
 
 test.skip(!process.env.LIVE, "set LIVE=1 to test the deployed sites");
 

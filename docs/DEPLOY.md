@@ -2,12 +2,12 @@
 
 Owner: Yadnesh.
 
-| Part             | Where                                                                 | Staging                                         |
-| ---------------- | --------------------------------------------------------------------- | ----------------------------------------------- |
-| Relay            | Cloudflare Workers + Durable Objects (`packages/relay/wrangler.toml`) | `haunt-kit-relay-staging.<account>.workers.dev` |
-| Phone controller | Cloudflare Pages project `haunt-kit-play`                             | `https://staging.haunt-kit-play.pages.dev`      |
-| Séance Party     | Pages project `haunt-kit-seance`                                      | `https://staging.haunt-kit-seance.pages.dev`    |
-| Steady           | Pages project `haunt-kit-steady`                                      | `https://staging.haunt-kit-steady.pages.dev`    |
+| Part             | Where                                                                 | Staging                                            |
+| ---------------- | --------------------------------------------------------------------- | -------------------------------------------------- |
+| Relay            | Cloudflare Workers + Durable Objects (`packages/relay/wrangler.toml`) | `kirohauntkit-relay-staging.<account>.workers.dev` |
+| Phone controller | Cloudflare Pages project `kirohauntkit-play`                          | `https://staging.kirohauntkit-play.pages.dev`      |
+| Séance Party     | Pages project `kirohauntkit-seance`                                   | `https://staging.kirohauntkit-seance.pages.dev`    |
+| Steady           | Pages project `kirohauntkit-steady`                                   | `https://staging.kirohauntkit-steady.pages.dev`    |
 
 `.github/workflows/deploy.yml` deploys all of it on every push to `main`, runs the relay smoke test against the live Worker, and lists the URLs in the run summary. Until the two secrets below exist, it skips with a notice and does not fail.
 
@@ -64,13 +64,13 @@ When a free limit is hit, further requests of that type fail until 00:00 UTC. No
 
 ## Production
 
-| Part             | Address                                                  |
-| ---------------- | -------------------------------------------------------- |
-| Séance Party     | https://haunt-kit-seance.pages.dev                       |
-| Steady           | https://haunt-kit-steady.pages.dev                       |
-| Phone controller | https://haunt-kit-play.pages.dev                         |
-| Relay            | `wss://haunt-kit-relay.yadnesh-deshpande2-1.workers.dev` |
+| Part             | Address                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| Séance Party     | https://kirohauntkit-seance.pages.dev                       |
+| Steady           | https://kirohauntkit-steady.pages.dev                       |
+| Phone controller | https://kirohauntkit-play.pages.dev                         |
+| Relay            | `wss://kirohauntkit-relay.yadnesh-deshpande2-1.workers.dev` |
 
-Publish it with Actions → **Deploy production** → Run workflow (from `main`). It runs the tests, deploys the relay, runs the 7-step smoke test on the live relay, deploys the three Pages projects to the production branch, then checks that every page answers. Run it again after the last merge before you submit, so the live sites match the code. Then test it: `LIVE=1 LIVE_PLAY=https://haunt-kit-play.pages.dev/ LIVE_PARTY=https://haunt-kit-seance.pages.dev/ LIVE_STEADY=https://haunt-kit-steady.pages.dev/ pnpm exec playwright test e2e/live.spec.ts`.
+Publish it with Actions → **Deploy production** → Run workflow (from `main`). It runs the tests, deploys the relay, runs the 7-step smoke test on the live relay, deploys the three Pages projects to the production branch, then checks that every page answers. Run it again after the last merge before you submit, so the live sites match the code. Then test it: `LIVE=1 LIVE_PLAY=https://kirohauntkit-play.pages.dev/ LIVE_PARTY=https://kirohauntkit-seance.pages.dev/ LIVE_STEADY=https://kirohauntkit-steady.pages.dev/ pnpm exec playwright test e2e/live.spec.ts`.
 
 The Cloudflare token expires in 30 days. If the deploy fails with an authentication error after that, make a new token and set `CLOUDFLARE_API_TOKEN` again.

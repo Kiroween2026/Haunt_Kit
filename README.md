@@ -11,13 +11,13 @@ Built with [Kiro](https://kiro.dev) for the Kiroween 2026 hackathon, **Skeleton 
 
 ## Try it in 10 seconds
 
-| What             | Link                                                                                   |
-| ---------------- | -------------------------------------------------------------------------------------- |
-| Séance Party     | https://haunt-kit-seance.pages.dev                                                     |
-| Steady           | https://haunt-kit-steady.pages.dev                                                     |
-| Phone controller | https://haunt-kit-play.pages.dev (the QR code in Séance Party opens it)                |
-| Relay            | `wss://haunt-kit-relay.yadnesh-deshpande2-1.workers.dev` (health check: add `/health`) |
-| No phone?        | In Séance Party click **Join from this computer**, or in Steady click **Try the demo** |
+| What             | Link                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| Séance Party     | https://kirohauntkit-seance.pages.dev                                                     |
+| Steady           | https://kirohauntkit-steady.pages.dev                                                     |
+| Phone controller | https://kirohauntkit-play.pages.dev (the QR code in Séance Party opens it)                |
+| Relay            | `wss://kirohauntkit-relay.yadnesh-deshpande2-1.workers.dev` (health check: add `/health`) |
+| No phone?        | In Séance Party click **Join from this computer**, or in Steady click **Try the demo**    |
 
 Judges: see **[docs/JUDGE_TESTING.md](docs/JUDGE_TESTING.md)** for testing alone, with one phone, or with no phone.
 

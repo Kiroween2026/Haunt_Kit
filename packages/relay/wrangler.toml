@@ -1,7 +1,7 @@
 # Owner: Yadnesh. Cloudflare Worker for the Haunt Kit relay.
 # Staging:    pnpm --filter @haunt-kit/relay deploy:staging
 # Production: pnpm --filter @haunt-kit/relay deploy:production
-name = "haunt-kit-relay"
+name = "kirohauntkit-relay"
 main = "src/worker.ts"
 compatibility_date = "2026-11-01"
 
@@ -18,7 +18,7 @@ tag = "v1"
 new_sqlite_classes = ["RoomObject"]
 
 [env.staging]
-name = "haunt-kit-relay-staging"
+name = "kirohauntkit-relay-staging"
 
 [env.staging.vars]
 ENVIRONMENT = "staging"

@@ -20,9 +20,9 @@
 
 - [ ] Only critical fixes and documentation refinement from this point forward.
 - [x] Production deployment verified live:
-  - **Séance Party:** https://haunt-kit-seance.pages.dev
-  - **Steady:** https://haunt-kit-steady.pages.dev
-  - **Phone Controller:** https://haunt-kit-play.pages.dev
+  - **Séance Party:** https://kirohauntkit-seance.pages.dev
+  - **Steady:** https://kirohauntkit-steady.pages.dev
+  - **Phone Controller:** https://kirohauntkit-play.pages.dev
 - [ ] Run GitHub Actions → **Deploy production** following final merges.
 - [ ] Run `pnpm check:submission` locally to verify all automated submission checks pass.
 
