@@ -94,8 +94,8 @@ Control views a phone can show: `tilt`, `still`, `scream`, `tap`, `wait`.
 Requirements: Node 22 and pnpm (`corepack enable`).
 
 ```bash
-git clone https://github.com/Kiroween2026/haunt-kit.git
-cd haunt-kit
+git clone https://github.com/Kiroween2026/Haunt_Kit.git
+cd Haunt_Kit
 pnpm install
 pnpm test
 ```

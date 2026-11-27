@@ -18,15 +18,15 @@ If Cloudflare says a `pages.dev` name is taken, it adds a suffix. Use the URL pr
 1. Sign in at https://dash.cloudflare.com (the free plan is enough).
 2. **Account ID:** Workers & Pages → Overview. Copy the Account ID from the right-hand side.
 3. **API token:** My Profile → API Tokens → Create Token → template **Edit Cloudflare Workers** → Use template. Under Permissions, also add **Account → Cloudflare Pages → Edit**. Account Resources: your account. Create, then copy the token (it is shown once).
-4. **GitHub secrets:** https://github.com/Kiroween2026/haunt-kit/settings/secrets/actions → New repository secret:
+4. **GitHub secrets:** https://github.com/Kiroween2026/Haunt_Kit/settings/secrets/actions → New repository secret:
    - `CLOUDFLARE_API_TOKEN` = the token
    - `CLOUDFLARE_ACCOUNT_ID` = the account ID
 
    Or from a terminal (the value is read from the prompt, so it doesn't land in shell history):
 
    ```bash
-   gh secret set CLOUDFLARE_API_TOKEN -R Kiroween2026/haunt-kit
-   gh secret set CLOUDFLARE_ACCOUNT_ID -R Kiroween2026/haunt-kit
+   gh secret set CLOUDFLARE_API_TOKEN -R Kiroween2026/Haunt_Kit
+   gh secret set CLOUDFLARE_ACCOUNT_ID -R Kiroween2026/Haunt_Kit
    ```
 
 5. Actions → **Deploy staging** → Run workflow. The summary shows the URLs. Post them in team chat.

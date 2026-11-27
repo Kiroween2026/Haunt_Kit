@@ -19,12 +19,12 @@ const tracked = sh("git ls-files").split("\n");
 const read = (f: string) => readFileSync(f, "utf8");
 
 check("Repo is public on GitHub", () => {
-  const vis = sh("gh repo view Kiroween2026/haunt-kit --json visibility -q .visibility");
+  const vis = sh("gh repo view Kiroween2026/Haunt_Kit --json visibility -q .visibility");
   return vis === "PUBLIC" || `visibility is ${vis}`;
 });
 check("MIT license at the root", () => /MIT License/.test(read("LICENSE")) || "LICENSE is not MIT");
 check("GitHub detects the MIT license", () => {
-  const key = sh("gh repo view Kiroween2026/haunt-kit --json licenseInfo -q .licenseInfo.key");
+  const key = sh("gh repo view Kiroween2026/Haunt_Kit --json licenseInfo -q .licenseInfo.key");
   return key === "mit" || `GitHub sees "${key || "none"}"`;
 });
 check(

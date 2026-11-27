@@ -4,7 +4,7 @@
 **Team Members:** Anish Pant, Viviana, Yadnesh Deshpande  
 **Project Name:** Haunt Kit  
 **Hackathon Category:** Skeleton Crew (one reusable template plus two distinct showcase applications)  
-**Public Repository:** https://github.com/Kiroween2026/haunt-kit
+**Public Repository:** https://github.com/Kiroween2026/Haunt_Kit
 
 **Key Deadlines:**
 
@@ -31,7 +31,7 @@
 - [ ] Fill Devpost submission fields:
   - **Project Name:** Haunt Kit
   - **Category:** Skeleton Crew
-  - **Repository URL:** https://github.com/Kiroween2026/haunt-kit
+  - **Repository URL:** https://github.com/Kiroween2026/Haunt_Kit
   - **Live Showcase URLs:** Listed above
   - **YouTube Video Link (Public, under 3:00):** <!-- TODO: Viviana to provide video URL -->
   - **Description:** Use the complete Devpost project description drafted in Section 2 below.
