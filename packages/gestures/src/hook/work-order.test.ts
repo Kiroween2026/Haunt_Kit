@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { REQUIRED_SECTIONS, findSpecPath, missingSections, names, workOrder } from "./work-order";
 
-const template = readFileSync(new URL("../../specs/_template.gesture.md", import.meta.url), "utf8");
+const template = readFileSync(
+  fileURLToPath(new URL("../../specs/_template.gesture.md", import.meta.url)),
+  "utf8",
+);
 const good = REQUIRED_SECTIONS.map((s) => `## ${s}\n\ntext`).join("\n\n");
 
 describe("findSpecPath", () => {
@@ -105,13 +109,19 @@ describe("workOrder", () => {
 });
 
 describe("the CLI the hook runs", () => {
-  const cli = new URL("./cli.ts", import.meta.url).pathname;
-  const root = new URL("../../../../", import.meta.url).pathname;
+  const cli = fileURLToPath(new URL("./cli.ts", import.meta.url));
+  const root = fileURLToPath(new URL("../../../../", import.meta.url));
+  const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
   const run = (input: string) =>
-    execFileSync("pnpm", ["exec", "tsx", cli], { input, cwd: root, encoding: "utf8" });
+    execFileSync(pnpm, ["exec", "tsx", cli], {
+      input,
+      cwd: root,
+      encoding: "utf8",
+      shell: process.platform === "win32",
+    });
 
   it("prints a work order for a saved spec and nothing for other files", () => {
-    const spec = readdirSync(new URL("../../specs/", import.meta.url)).find(
+    const spec = readdirSync(fileURLToPath(new URL("../../specs/", import.meta.url))).find(
       (f) => f.endsWith(".gesture.md") && !f.startsWith("_"),
     );
     if (spec) {
@@ -120,5 +130,5 @@ describe("the CLI the hook runs", () => {
       );
     }
     expect(run(JSON.stringify({ path: "packages/gestures/src/index.ts" }))).toBe("");
-  });
+  }, 20000);
 });

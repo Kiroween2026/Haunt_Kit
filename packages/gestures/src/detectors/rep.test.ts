@@ -884,4 +884,93 @@ describe("Steady Rep Detector (Task 4.1)", () => {
       expect(detector.getState()).toBe("REST");
     });
   });
+
+  describe("Smoothing configuration and safe parameter validation (Tasks 2 & 3)", () => {
+    it("proves that changing smoothingFactor changes detector smoothing behavior", () => {
+      // Detector A: heavy smoothing (smoothingFactor: 0.1 -> larger tau)
+      const detectorA = createTestDetector({ smoothingFactor: 0.1 });
+      // Detector B: light smoothing (smoothingFactor: 0.9 -> smaller tau)
+      const detectorB = createTestDetector({ smoothingFactor: 0.9 });
+
+      detectorA.push(makeSample({ t: 0, beta: 0 }));
+      detectorB.push(makeSample({ t: 0, beta: 0 }));
+
+      // Send a step angle at t = 50ms (e.g. 60 degrees)
+      const stepSample = makeSample({ t: 50, beta: 60 });
+      detectorA.push(stepSample);
+      detectorB.push(stepSample);
+
+      const angleA = detectorA.status().angleDeg;
+      const angleB = detectorB.status().angleDeg;
+
+      // With light smoothing (0.9), angle rises much faster toward 60 deg than with heavy smoothing (0.1)
+      expect(angleB).toBeGreaterThan(angleA);
+      expect(angleB).toBeGreaterThan(45);
+      expect(angleA).toBeLessThan(35);
+    });
+
+    it("preserves smoothingMs as primary configuration when both smoothingMs and smoothingFactor are specified", () => {
+      // smoothingMs: 500ms (very heavy smoothing) with smoothingFactor: 0.99 (light)
+      const detector = createTestDetector({ smoothingMs: 500, smoothingFactor: 0.99 });
+      detector.push(makeSample({ t: 0, beta: 0 }));
+      detector.push(makeSample({ t: 50, beta: 60 }));
+
+      // If smoothingMs: 500 took precedence, angle will be low (~5.7°), not ~59°
+      expect(detector.status().angleDeg).toBeLessThan(15);
+    });
+
+    it("falls back to default smoothingMs when smoothingFactor is out of bounds or non-finite", () => {
+      const detectorNeg = createTestDetector({ smoothingFactor: -0.5 });
+      const detectorZero = createTestDetector({ smoothingFactor: 0 });
+      const detectorOne = createTestDetector({ smoothingFactor: 1 });
+      const detectorNaN = createTestDetector({ smoothingFactor: NaN });
+      const detectorInf = createTestDetector({ smoothingFactor: Infinity });
+
+      for (const d of [detectorNeg, detectorZero, detectorOne, detectorNaN, detectorInf]) {
+        d.push(makeSample({ t: 0, beta: 0 }));
+        d.push(makeSample({ t: 50, beta: 60 }));
+        // Default smoothingMs is 100ms: angle after 50ms from 60deg step is around 60 * (1 - exp(-0.5)) ≈ 23.6 deg
+        expect(d.status().angleDeg).toBeGreaterThan(15);
+        expect(d.status().angleDeg).toBeLessThan(35);
+      }
+    });
+
+    it("safely handles non-finite and invalid configuration numbers without propagating NaN or Infinity", () => {
+      const detector = createRepDetector({
+        targetRomDeg: NaN,
+        minRomDeg: Infinity,
+        hysteresisDeg: -5,
+        minTempoSec: NaN,
+        calibrationMs: NaN,
+        smoothingMs: NaN,
+      });
+
+      // Detector should not throw or produce NaN in status
+      expect(detector.status()).toEqual({
+        calibrated: false,
+        calibration: 0,
+        angleDeg: 0,
+        moving: false,
+        count: 0,
+      });
+
+      // Can calibrate and track without NaN errors
+      for (let t = 0; t <= 2000; t += 50) {
+        detector.push(makeSample({ t, ax: 0, ay: 0, az: 9.81 }));
+      }
+      expect(detector.status().calibrated).toBe(true);
+      expect(Number.isFinite(detector.status().angleDeg)).toBe(true);
+
+      // Perform a rep: 0 -> 60 -> 0 over 2000ms
+      const samples = generateRepSamples(2050, 2000, 60, 50);
+      const events: GestureEvent[] = [];
+      for (const s of samples) {
+        events.push(...detector.push(s));
+      }
+      const reps = events.filter((e) => e.name === "rep");
+      expect(reps).toHaveLength(1);
+      expect(Number.isFinite(reps[0]!.data!.romDeg as number)).toBe(true);
+      expect(Number.isFinite(reps[0]!.data!.tempoSec as number)).toBe(true);
+    });
+  });
 });

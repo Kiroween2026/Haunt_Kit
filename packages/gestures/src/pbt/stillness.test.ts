@@ -67,19 +67,25 @@ describe("PBT Invariant 1: Stillness Invariant", () => {
 
   it("rep detector rep count remains strictly 0 for stillness/noise", () => {
     fc.assert(
-      fc.property(stillStreamGen({ durationMs: 2000 }), (samples) => {
+      fc.property(stillStreamGen({ durationMs: 2500 }), (samples) => {
         const rep = createRepDetector();
-        const repEvents: GestureEvent[] = [];
+        const events: GestureEvent[] = [];
 
         for (const s of samples) {
-          repEvents.push(...rep.push(s));
+          events.push(...rep.push(s));
         }
 
-        // Must never count any reps
-        for (const e of repEvents) {
-          expect(e.data?.count).toBe(0);
-          expect(e.data?.fullRange).toBe(0);
-        }
+        // Ensure calibration actually completes and emits rep-calibrated
+        const calEvents = events.filter((e) => e.name === "rep-calibrated");
+        expect(calEvents.length).toBeGreaterThanOrEqual(1);
+        expect(rep.status().calibrated).toBe(true);
+
+        // Filter events by e.name === "rep" before checking repetition counts
+        const repEvents = events.filter((e) => e.name === "rep");
+        expect(repEvents).toHaveLength(0);
+
+        // Assert that stationary noise never produces a completed rep
+        expect(rep.status().count).toBe(0);
       }),
       { numRuns: 40, seed: 30303 },
     );

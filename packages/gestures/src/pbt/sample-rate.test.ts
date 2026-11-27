@@ -61,25 +61,39 @@ describe("PBT Invariant 3: Sample-Rate Invariance (30 Hz to 120 Hz)", () => {
 
           const testRates = [30, 60, 120];
           const detectedCounts: number[] = [];
+          const baselineDurationMs = 2200; // >= 2100 ms stationary baseline period
 
           for (const rate of testRates) {
-            const detector = createRepDetector({ calibrationMs: 0, targetRomDeg: 45, smoothingFactor: 0.8 });
-            // Baseline at rest
-            detector.push({
-              t: 0,
-              ax: 0,
-              ay: 0,
-              az: 9.81,
-              gx: 0,
-              gy: 0,
-              gz: 0,
-              alpha: 0,
-              beta: 0,
-              gamma: 0,
-            });
-
-            const samples = sampleTrajectory(traj, rate, 50);
+            // Default 2000 ms calibration (calibrationMs: 0 workaround removed)
+            const detector = createRepDetector({ targetRomDeg: 45, smoothingFactor: 0.8 });
+            const dt = 1000 / rate;
             const events: GestureEvent[] = [];
+
+            // Prepend stationary baseline of at least 2100 ms to complete calibration
+            const baselineSteps = Math.ceil(baselineDurationMs / dt);
+            for (let i = 0; i <= baselineSteps; i++) {
+              const t = Math.round(i * dt);
+              events.push(
+                ...detector.push({
+                  t,
+                  ax: 0,
+                  ay: 0,
+                  az: 9.81,
+                  gx: 0,
+                  gy: 0,
+                  gz: 0,
+                  alpha: 0,
+                  beta: 0,
+                  gamma: 0,
+                }),
+              );
+            }
+
+            expect(detector.status().calibrated).toBe(true);
+
+            // Start the generated rep trajectory after calibration completes
+            const startT = Math.round(baselineSteps * dt) + Math.round(dt);
+            const samples = sampleTrajectory(traj, rate, startT);
             for (const s of samples) {
               events.push(...detector.push(s));
             }
